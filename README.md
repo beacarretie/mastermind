@@ -102,7 +102,7 @@ turnos.
 
 ##  Acceso al proyecto
 
-https://beacarretie.github.io/mastermind/html/index.html
+https://beacarretie.github.io/mastermind/
 
 ##  Tecologías utilizadas
 
