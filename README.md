@@ -1,7 +1,9 @@
-##Título
-<em> # Mastermind </em>
+## Título
 
-##Índice
+Mastermind 
+
+## Índice
+
 *[Título e imagen de portada](#Título)
 
 *[Índice](#índice)
@@ -20,7 +22,8 @@
 
 
 
-##Descripción:
+## Descripción:
+
 Juego del Mastermind con el stack JS, CSS3 y HTML5.
 
 El objetivo es implementar una aplicación que permita jugar al juego del
@@ -38,7 +41,8 @@ derrotados (depende del tamaño, aunque generalmente son 10 intentos de
 combinaciones).
 
 
-##Estado del proyecto:
+## Estado del proyecto:
+
 Proyecto acabado.
 
 ## :hammer:Funcionalidades del proyecto
