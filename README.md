@@ -4,10 +4,6 @@ Mastermind
 
 ## Índice
 
-*[Título e imagen de portada](#Título)
-
-*[Índice](#índice)
-
 *[Descripción del proyecto](#descripción-del-proyecto)
 
 *[Estado del proyecto](#Estado-del-proyecto)
@@ -111,6 +107,7 @@ https://beacarretie.github.io/mastermind/html/index.html
 ##  Tecologías utilizadas
 
 Juego del Mastermind con el stack JS, CSS3 y HTML5.
+
 <img src="./imgs/js.png"> 
 <img src="./imgs/css.png"> 
 <img src="./imgs/html.png"> 
