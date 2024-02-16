@@ -1,269 +1,278 @@
-$(document).ready(function(){
-    var currentColor = "white";
-    var currentBoardCells = ["board40", "board41", "board42", "board43"];
-    var currentPegCells = ["peg40", "peg41", "peg42", "peg43"]
-    var currentRow = 11;
-    var possibleColors = ["blue", "green", "red", "yellow", "orange", "pink"];
-    var hasWon = false;
+window.onload = () => start(); //Initialize game
+
+//Get DOM Elements
+const colours = document.querySelector('.colours'); //Get buttons div for addEventListener
+const [...buttonsArr] = document.querySelectorAll('button'); //Get buttons to switch on or off
+//Get individual buttons for later styling
+const blue = document.querySelector('.blue');
+const red = document.querySelector('.red');
+const yellow = document.querySelector('.yellow');
+const green = document.querySelector('.green');
+const orange = document.querySelector('.orange');
+const white = document.querySelector('.white');
+
+//Information panel insert
+const info = document.querySelector('.info p');
+
+//Get all four guesses for each row and place into an array
+const [...one] = document.querySelectorAll('#one, #two, #three, #four');
+const [...two] = document.querySelectorAll('#five, #six, #seven, #eight');
+const [...three] = document.querySelectorAll('#nine, #ten, #eleven, #twelve');
+const [...four] = document.querySelectorAll(
+  '#thirteen, #fourteen, #fifteen, #sixteen'
+);
+const [...five] = document.querySelectorAll(
+  '#seventeen, #eighteen, #nineteen, #twenty'
+);
+const [...six] = document.querySelectorAll(
+  '#twentyone, #twentytwo, #twentythree, #twentyfour'
+);
+const [...seven] = document.querySelectorAll(
+  '#twentyfive, #twentysix, #twentyseven, #twentyeight'
+);
+const [...eight] = document.querySelectorAll(
+  '#twentynine, #thirty, #thirtyone, #thirtytwo'
+);
+const [...nine] = document.querySelectorAll(
+  '#thirtythree, #thirtyfour, #thirtyfive, #thirtysix'
+);
+const [...ten] = document.querySelectorAll(
+  '#thirtyseven, #thirtyeight, #thirtynine, #forty'
+);
+
+//Results
+const [...resultOne] = document.querySelectorAll('.resultOne .miniCircle');
+const [...resultTwo] = document.querySelectorAll('.resultTwo .miniCircle');
+const [...resultThree] = document.querySelectorAll('.resultThree .miniCircle');
+const [...resultFour] = document.querySelectorAll('.resultFour .miniCircle');
+const [...resultFive] = document.querySelectorAll('.resultFive .miniCircle');
+const [...resultSix] = document.querySelectorAll('.resultSix .miniCircle');
+const [...resultSeven] = document.querySelectorAll('.resultSeven .miniCircle');
+const [...resultEight] = document.querySelectorAll('.resultEight .miniCircle');
+const [...resultNine] = document.querySelectorAll('.resultNine .miniCircle');
+const [...resultTen] = document.querySelectorAll('.resultTen .miniCircle');
 
 
-    var cell1Color, cell2Color, cell3Color, cell4Color;
+//Play again button and hidden code to show after win
+const playAgain = document.querySelector('.playAgain');
+const playArea = document.querySelector('.playArea');
+const hidden = document.querySelector('.hidden');
+const [...hidden2] = document.querySelectorAll('.hidden .circle2');
 
-    //dictionary of colors
-    var colors = {
-        "rgb(0, 128, 0)": "green",
-        "rgb(255, 255, 0)": "yellow",
-        "rgb(255, 0, 0)": "red",
-        "rgb(0, 0, 255)": "blue",
-        "rgb(255, 192, 203)": "pink",
-        "rgb(255, 165, 0)": "orange"
+//Globals
+let number = 0;
+let result = 0;
+let mysteryColours = [];
+let colourSetArr = [];
+let setCounter = 0;
+let posCounter = 0;
+let saveColour;
+let winArr = [];
+let colourSet;
+
+//colours array
+const coloursArray = [
+  '',
+  'radial-gradient(circle at 10px 10px, blue, rgb(1, 1, 44))',
+  'radial-gradient(circle at 10px 10px, red, rgb(1, 1, 44))',
+  'radial-gradient(circle at 10px 10px, yellow, rgb(1, 1, 44))',
+  'radial-gradient(circle at 10px 10px, green, rgb(1, 1, 44))',
+  'radial-gradient(circle at 10px 10px, orange, rgb(1, 1, 44))',
+  'radial-gradient(circle at 10px 10px, white, rgb(1, 1, 44))'
+];
+
+//Guess positions array
+const boardPositions = [
+  one,
+  two,
+  three,
+  four,
+  five,
+  six,
+  seven,
+  eight,
+  nine,
+  ten
+];
+
+//Result positions array
+const resultPositions = [
+  resultOne,
+  resultTwo,
+  resultThree,
+  resultFour,
+  resultFive,
+  resultSix,
+  resultSeven,
+  resultEight,
+  resultNine,
+  resultTen
+];
+
+//Button background colours
+blue.style =
+  'background-color: blue; background: radial-gradient(circle at 10px 10px, blue, #01012c);';
+red.style =
+  'background-color: red; background: radial-gradient(circle at 10px 10px, red, #01012c);';
+yellow.style =
+  'background-color: yellow; background: radial-gradient(circle at 10px 10px, yellow, #01012c);';
+green.style =
+  'background-color: green; background: radial-gradient(circle at 10px 10px, green, #01012c);';
+orange.style =
+  'background-color: orange; background: radial-gradient(circle at 10px 10px, orange, #ee8013);';
+white.style =
+  'background-color: white; background: radial-gradient(circle at 10px 10px, white, #01012c);';
+
+//Functions
+
+//This function will initialize the game
+const start = () => {
+  buttonsArr.map(button => (button.disabled = false));
+  playAgain.disabled = true;
+  playAgain.style = 'opacity: 0';
+  hidden.style = 'opacity: 0';
+  playArea.style = 'opacity: 1';
+  info.innerHTML = 'Please choose a colour';
+  assignColours();
+};
+
+//Create hidden four mystery colours.
+//As the random number generator can return an already used number
+//we need to remove duplicate colours from the mystery colours array.
+//We do this by placing our array into a set. Sets can only have unique entries.
+//Therefore by checking if the size of the set is less than four we can try again
+//until our mystery array only has four unique colours.
+const assignColours = () => {
+  for (let i = 0; i < 4; i++) {
+    result = getRandomIntInclusive(1, 6);
+    mysteryColours.push(coloursArray[result]);
+  }
+  colourSet = new Set(mysteryColours);
+  if (colourSet.size < 4) {
+    mysteryColours.length = 0;
+    colourSet.clear();
+    start();
+  }
+};
+
+//Random number generator
+const getRandomIntInclusive = (min, max) => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  number = Math.floor(Math.random() * (max - min + 1)) + min;
+  return number;
+};
+
+//Colour clicked. Put on available circle. This achieved by two variables. The posCounter which tells us
+//at which position within the row we are dealing with and the setCounter which tells us which row.
+const putOnBoard = e => {
+  if (e.target.tagName === 'BUTTON' && setCounter <= 9) {
+    boardPositions[setCounter][posCounter].style.background =
+      e.target.style.background;
+    posCounter++;
+    if (posCounter === 4) {
+      checkSequence();
+      checkColours();
+      checkResults();
+      posCounter = 0;
+      setCounter++;
     }
+  }
+};
 
-    //create the random color code
-    var code = [
-        possibleColors[Math.floor(Math.random()*6)], 
-        possibleColors[Math.floor(Math.random()*6)],
-        possibleColors[Math.floor(Math.random()*6)],
-        possibleColors[Math.floor(Math.random()*6)]
-    ];
-    
-    console.log(code);
-
-    //create the cells and add them to the board
-    for(let i = 0; i < 44; i++){
-        let cell = "<div class=\"boardCell\" id=board"+i+"></div>"
-        $(".board").append(cell);
+//Check for correct colour and position. Loop around the selected row and compare colours to the
+//correct index.
+const checkSequence = () => {
+  boardPositions[setCounter].map((pos1, index) => {
+    if (pos1.style.background === mysteryColours[index]) {
+      resultPositions[setCounter][index].style =
+        'background-color: green; background: radial-gradient(circle at 10px 10px, green, #01012c);';
     }
+  });
+};
 
-    //create cells for the pegs
-    for(let i = 0; i < 44; i++){
-        let cell = "<div class=\"pegCell\" id=peg"+i+"></div>"
-        $(".pegs").append(cell);
-    }
-
-    //change the style of the board so you can view the rows
-    $(".boardCell").css("border", "1px solid black");
-    $(".boardCell").css("border-radius", "50%");
-    $(".boardCell").css("background-color", "white");
-
-    //change the style of the pegs
-    $(".pegs").css("grid-template-rows", "repeat(22,36.59px)");
-    $(".pegs").css("grid-template-columns", "repeat(2,36.59px");
-    $(".pegCell").css("border", "1px solid black");
-    $(".pegCell").css("border-radius", "50%")
-    $(".pegCell").css("background-color", "gray")
-
-    //add colors to the color board
-    $(".color").each(function(){
-        //set the color of the cell to its ID
-        let color = $(this).attr("id");
-        $(this).css("background-color", color);
-    });
-
-    //change the current color when the user clicks on the color board
-    $(".color").click(function(){
-        let color = $(this).attr("id");
-        currentColor = color;
-        $(".currentColor").css("background-color", color);
-    });
-
-    //change the color of a board cell on click
-    $(".boardCell").click(function(){
-        var id = $(this).attr("id");
-
-        if(isValid(id)){
-            $(this).css("background-color", currentColor);
-        }
-    });
-
-    //do actions when the submit button is clicked
-    $(".submit").click(function(){
-        updatePegs();
-        checkWin();
-        changeCurrentRow();
-    });
-
-    //change the valid board cells to click on
-    function changeCurrentRow(){
-        currentRow -= 1;
-        var mult = 4;
-
-        currentBoardCells = [
-            "board" + (currentRow*mult-4), 
-            "board" + (currentRow*mult-3), 
-            "board" + (currentRow*mult-2), 
-            "board" + (currentRow*mult-1)];
-        currentPegCells = [
-            "peg" + (currentRow*mult-4), 
-            "peg" + (currentRow*mult-3), 
-            "peg" + (currentRow*mult-2), 
-            "peg" + (currentRow*mult-1)];
-    }
-
-    //check whether the cell clicked on is valid
-    function isValid(id){
-        if(currentBoardCells.includes(id) && hasWon === false){
-            return true;
-        }
-        return false;
-    }
-
-    //check if the player has won
-    function checkWin(){
-        if(code[0] === cell1Color &&
-            code[1] === cell2Color &&
-            code[2] === cell3Color &&
-            code[3] === cell4Color){
-            hasWon = true;
-            
-            window.location.href = "/html/gameover.html"
-        }
-
-        return hasWon; 
-    }
-
-    //change the pegs depending on the cell colors
-    function updatePegs(){
-        let cell1 = $("#"+currentBoardCells[0]);
-        let cell2 = $("#"+currentBoardCells[1]);
-        let cell3 = $("#"+currentBoardCells[2]);
-        let cell4 = $("#"+currentBoardCells[3]);
-
-        cell1Color = colors[cell1.css("background-color")];
-        cell2Color = colors[cell2.css("background-color")];
-        cell3Color = colors[cell3.css("background-color")];
-        cell4Color = colors[cell4.css("background-color")];
-
-        let peg1 = $("#"+currentPegCells[0]);
-        let peg2 = $("#"+currentPegCells[1]);
-        let peg3 = $("#"+currentPegCells[2]);
-        let peg4 = $("#"+currentPegCells[3]);
-
-        let pegs = [peg1, peg2, peg3, peg4];
-
-        //array of pegs that have been filled
-        let filledPegs = [];
-        //array of cells that have already been accounted for
-        let chosenCells = [];
-        //create copy of the code array
-        let codeCopy = [...code];
-
-        //if the colors are in the correct positions, 
-        //  change the pegs to red
-        if(code[0] === cell1Color){
-            //choose a random peg that has not yet been filled
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //remove the color from codeCopy because it has
-            //  already been accounted for
-            let index = codeCopy.indexOf(cell1Color);
-            if(index > -1){
-                codeCopy.splice(index, 1);
+//Check for correct colours in wrong position. This needs to loop around the correct row
+//of the results array and check for empty slots. No point checking if the sequence checker
+//has already established correct sequence and colour. Now we need to check the guesses but for
+//only those colours that didn't match on sequence. If found we place  a white colour in the
+//appropriate cell.
+const checkColours = () => {
+  resultPositions[setCounter].map((pos1, index1) => {
+    if (pos1.style.background === '') {
+      boardPositions[setCounter].map((pos2, index2) => {
+        if (index1 === index2) {
+          mysteryColours.map(colour => {
+            if (pos2.style.background === colour) {
+              pos1.style =
+                'background-color: white; background: radial-gradient(circle at 10px 10px, white, #01012c);';
             }
-
-            //add number to choseCells to state that this cell
-            //  has now been accounted for
-            chosenCells.push(1);
-
-            //fill the according peg
-            pegs[num-1].css("background-color", "red");
+          });
         }
-        if(code[1] === cell2Color){
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
+      });
+    }
+  });
+};
 
-            //remove the color from codeCopy because it has
-            //  already been accounted for
-            let index = codeCopy.indexOf(cell2Color);
-            if(index > -1){
-                codeCopy.splice(index, 1);
-            }
+//Check result to continue or declare winner. We need all results for selected row to be green
+const checkResults = () => {
+  winArr.length = 0;
+  resultPositions[setCounter].map(pos => {
+    if (
+      pos.style.background !==
+      'radial-gradient(circle at 10px 10px, green, rgb(1, 1, 44))'
+    ) {
+      winArr.push(false);
+    } else {
+      winArr.push(true);
+    }
+  });
 
-            chosenCells.push(2);
+  //Use reduce on our results array to determine the reults
+  let win = winArr.reduce((total, x) => (x === true ? total + x : null));
 
-            pegs[num-1].css("background-color", "red");
-        }
-        if(code[2] === cell3Color){
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
+  //If 4 greens we have a winner
+  if (win === 4) {
 
-            //remove the color from codeCopy because it has
-            //  already been accounted for
-            let index = codeCopy.indexOf(cell3Color);
-            if(index > -1){
-                codeCopy.splice(index, 1);
-            }
+    info.innerHTML = 'You are a winner';
+    playAgain.disabled = false;
+    buttonsArr.map(button => (button.disabled = true));
+    playAgain.style = 'opacity: 1;cursor: pointer';
+    mysteryColours.map((colour, index) => {
+      hidden2[index].style.background = colour;
+    });
+    hidden.style = 'opacity: 1';
+    playArea.style = 'opacity: 0.3';
 
-            chosenCells.push(3);
+    sessionStorage.setItem("result", "winner");
+    setTimeout(() => {
+      window.location.href = "./gameover.html";
+  }, 1500);
 
-            pegs[num-1].css("background-color", "red");
-        }
-        if(code[3] === cell4Color){
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //remove the color from codeCopy because it has
-            //  already been accounted for
-            let index = codeCopy.indexOf(cell4Color);
-            if(index > -1){
-                codeCopy.splice(index, 1);
-            }
-
-            chosenCells.push(4);
-
-            pegs[num-1].css("background-color", "red");
-        }
-
-        
-        //if the code copy includes the colors of the four cells
-        //  then change the pegs to white because the code copy
-        //  now only includes colors that have not been accounted
-        //  for
-
-        if(codeCopy.includes(cell1Color) && !chosenCells.includes(1)){
-            //choose a random peg that has not yet been filled
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //fill the according peg
-            pegs[num-1].css("background-color", "white");
-        }       
-        if(codeCopy.includes(cell2Color) && !chosenCells.includes(2)){
-            //choose a random peg that has not yet been filled
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //fill the according peg
-            pegs[num-1].css("background-color", "white");
-        }    
-        if(codeCopy.includes(cell3Color) && !chosenCells.includes(3)){
-            //choose a random peg that has not yet been filled
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //fill the according peg
-            pegs[num-1].css("background-color", "white");
-        }    
-        if(codeCopy.includes(cell4Color) && !chosenCells.includes(4)){
-            //choose a random peg that has not yet been filled
-            let num = randomNum14(filledPegs);
-            filledPegs.push(num);
-
-            //fill the according peg
-            pegs[num-1].css("background-color", "white");
-        }     
+  } else {
+    if (setCounter === 9) {
+      return info.innerHTML = 'Game Over';
     }
 
-    //choose a random number from 1-4 that is not in the given array
-    function randomNum14(nums){
-        //generate a number from 1-4
-        let num = Math.floor(Math.random()*4) + 1;
-        //while that number has already been chosen
-        //  choose another one
-        while(nums.includes(num)){
-            num = Math.floor(Math.random()*4) + 1;
-        }
-        return num;
-    }
-});
+    info.innerHTML = 'Please continue';
+  }
+};
+
+//Play again button pressed. Reset all
+const clearDown = () => {
+  resultPositions.map(pos => {
+    pos.map(colour => (colour.style.background = ''));
+  });
+  boardPositions.map(pos => {
+    pos.map(colour => (colour.style.background = ''));
+  });
+  setCounter = 0;
+  mysteryColours.length = 0;
+  colourSet.clear();
+  start();
+};
+
+//Listeners
+colours.addEventListener('click', e => putOnBoard(e));
+playAgain.addEventListener('click', () => clearDown());
+//Show results to test the app
+console.log(mysteryColours)
