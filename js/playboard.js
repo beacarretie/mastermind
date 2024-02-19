@@ -119,7 +119,7 @@ yellow.style =
 green.style =
   'background-color: green; background: radial-gradient(circle at 10px 10px, green, #01012c);';
 orange.style =
-  'background-color: orange; background: radial-gradient(circle at 10px 10px, orange, #ee8013);';
+  'background-color: orange; background: radial-gradient(circle at 10px 10px, orange, #01012c);';
 white.style =
   'background-color: white; background: radial-gradient(circle at 10px 10px, white, #01012c);';
 
